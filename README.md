@@ -13,6 +13,10 @@
 | [3 · Literature Triage Agent](labs/literature-triage.html) | Check a rule-based agent's screening of ten fictional abstracts, and measure its precision and recall. |
 | [4 · Can This Data Cross the Border?](labs/data-border.html) | Eight US–China data-sharing scenarios: share, review first, or don't share. |
 
+## Companion course
+
+The labs are the hands-on practice for the free self-paced course [AI for Life-Science Professionals](https://clarkngo.github.io/courses/ai-for-life-sciences/) (12 lessons, 6 modules). Each lab links to its matching lesson.
+
 ## Design rules
 
 - **Static and free.** Plain HTML, CSS, and JavaScript on GitHub Pages. No build step, no backend, no accounts, no API keys.
