@@ -43,6 +43,19 @@
     </ul>
   </div>
 
+  <details class="card key-ideas">
+    <summary>Key ideas <span>· a 2-minute primer before you start</span></summary>
+    <dl>
+      <div><dt>Features</dt><dd>The numbers a model uses to describe each compound, such as lipophilicity (logP: how oily versus watery it is) and molecular weight. Real models often use hundreds of features.</dd></div>
+      <div><dt>Labels and assay noise</dt><dd>The label is the assay result: active or inactive. In a messy screen some labels are simply wrong, and a model can't tell which ones.</dd></div>
+      <div><dt>Training versus test data</dt><dd>The model learns from training data. Test data is held back and shows how the model does on compounds it has never seen. Only test performance tells you what to expect on your next screen.</dd></div>
+      <div><dt>k-nearest neighbors</dt><dd>A simple model: to label a new compound, find the k most similar compounds already screened and take a majority vote. Small k follows every data point; large k smooths things out.</dd></div>
+      <div><dt>Overfitting</dt><dd>When a model memorizes its training data, including the noise, instead of learning the real pattern. Training accuracy looks great and test accuracy drops. More data, a simpler model, and cleaner labels all help.</dd></div>
+      <div><dt>Baseline</dt><dd>The score of a model that does something trivial. Most compounds in a screen are inactive, so always guessing "inactive" already scores well. A useful model has to beat that, and for finding hits, precision and recall often matter more than accuracy.</dd></div>
+    </dl>
+    <p class="hint">Go deeper in the free course lesson <a href="https://clarkngo.github.io/courses/ai-for-life-sciences/lessons/m3-l2-data-analysis-and-discovery-models/">Data Analysis and Discovery Models</a>.</p>
+  </details>
+
   <div class="callout" style="margin-bottom:16px"><strong>About the data:</strong> every compound here is simulated. Each one has two made-up properties, roughly like lipophilicity (logP) and molecular weight, and the "true" active zone is a hidden sweet spot in the middle. Real screens have many more properties, but the lesson is the same.</div>
 
   <div class="lab-grid">

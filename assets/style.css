@@ -104,3 +104,11 @@ details.reflect summary { cursor: pointer; font-weight: 700; color: var(--marine
 .lab-nav { display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-top: 28px; font-weight: 700; }
 .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); border: 0; }
 canvas { max-width: 100%; display: block; }
+
+/* Key ideas primer */
+.key-ideas { margin: 0 0 16px; border-left: 4px solid var(--teal); }
+.key-ideas summary { cursor: pointer; font-weight: 800; color: var(--marine); font-size: 1rem; }
+.key-ideas summary span { font-weight: 600; color: var(--muted); font-size: .88rem; }
+.key-ideas dl { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 12px 20px; margin: 14px 0 10px; }
+.key-ideas dt { font-weight: 800; color: var(--marine); font-size: .92rem; }
+.key-ideas dd { margin: 2px 0 0; font-size: .9rem; color: var(--ink); }

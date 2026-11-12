@@ -50,6 +50,19 @@
     </ul>
   </div>
 
+  <details class="card key-ideas">
+    <summary>Key ideas <span>· a 2-minute primer before you start</span></summary>
+    <dl>
+      <div><dt>Protein structure</dt><dd>A protein is a chain of amino acids (called residues) that folds into a 3D shape. The shape decides what the protein does, including where a drug might bind.</dd></div>
+      <div><dt>How structures are measured</dt><dd>Scientists measure structures with X-ray crystallography, cryo-electron microscopy (cryo-EM), or NMR. The results go into the Protein Data Bank, which holds more than 200,000 structures.</dd></div>
+      <div><dt>Resolution</dt><dd>How sharp a measured structure is, in ångströms (Å). Smaller is sharper: at about 2 Å most atom positions are clear, while at 4 Å you mainly see the overall fold.</dd></div>
+      <div><dt>AlphaFold</dt><dd>An AI system that predicts a protein's 3D shape from its amino-acid sequence alone. Its database holds over 200 million predictions. A prediction is a strong hypothesis, not a measurement. Database models are single chains, without drugs, DNA, or partner proteins.</dd></div>
+      <div><dt>pLDDT</dt><dd>AlphaFold's confidence for each residue, from 0 to 100. Above 90 is very high. 70–90 usually means the overall fold is right. 50–70 is low. Below 50 often means the region has no fixed shape.</dd></div>
+      <div><dt>Disordered regions</dt><dd>Some parts of proteins are naturally floppy and never hold one shape. Low pLDDT there is often the AI correctly signaling flexibility, not simply failing.</dd></div>
+    </dl>
+    <p class="hint">Go deeper in the free course lesson <a href="https://clarkngo.github.io/courses/ai-for-life-sciences/lessons/m3-l2-data-analysis-and-discovery-models/">Data Analysis and Discovery Models</a>.</p>
+  </details>
+
   <div class="lab-grid">
     <section aria-label="Viewers">
       <div class="viewers">
