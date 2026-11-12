@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lab 2: Assay Hit Predictor · CityUx Labs</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/style.css">
+  <style>
+    .plot-wrap { background: #fff; border: 1px solid var(--line); border-radius: 12px; padding: 12px; }
+    .legend { display: flex; flex-wrap: wrap; gap: 6px 14px; font-size: .8rem; margin-top: 8px; color: var(--muted); }
+    .legend span { display: inline-flex; align-items: center; gap: 6px; }
+    .dot { width: 11px; height: 11px; border-radius: 50%; display: inline-block; }
+    .gap-ok { color: var(--ok) !important; } .gap-bad { color: var(--bad) !important; }
+  </style>
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<header class="topbar">
+  <div class="topbar-inner">
+    <a href="../index.html"><img src="../assets/cityu-logo.png" alt="City University of Seattle: CityUx Labs home"></a>
+    <span class="brand-sep" aria-hidden="true"></span>
+    <span class="brand-name">CityU<span>x</span> Labs</span>
+    <nav aria-label="Labs">
+      <a href="protein-explorer.html">1 Structure</a>
+      <a href="assay-simulator.html" aria-current="page">2 ML</a>
+      <a href="literature-triage.html">3 Agents</a>
+      <a href="data-border.html">4 Data</a>
+    </nav>
+  </div>
+</header>
+
+<main id="main" class="wrap">
+  <div class="lab-head">
+    <div class="eyebrow">Lab 2 · Machine learning · about 20 minutes</div>
+    <h1>Assay Hit Predictor</h1>
+    <p>Your team screened compounds and recorded which ones were active. Can a model learn to predict hits before you run the next screen? Here you'll train one on simulated screening data and see the most common trap in machine learning: a model that looks perfect on the data it learned from and fails on new compounds.</p>
+    <ul class="goals">
+      <li>Tell the difference between training accuracy and test accuracy.</li>
+      <li>See how model flexibility, the amount of data, and assay noise cause overfitting.</li>
+      <li>Decide what evidence you'd want before trusting a model's predictions.</li>
+    </ul>
+  </div>
+
+  <div class="callout" style="margin-bottom:16px"><strong>About the data:</strong> every compound here is simulated. Each one has two made-up properties, roughly like lipophilicity (logP) and molecular weight, and the "true" active zone is a hidden sweet spot in the middle. Real screens have many more properties, but the lesson is the same.</div>
+
+  <div class="lab-grid">
+    <section>
+      <div class="plot-wrap">
+        <canvas id="plot" width="640" height="440" role="img" aria-label="Scatter plot of training compounds and the model's predicted active region"></canvas>
+        <div class="legend">
+          <span><i class="dot" style="background:#F63E02"></i>Active (training)</span>
+          <span><i class="dot" style="background:#002D5C"></i>Inactive (training)</span>
+          <span><i class="dot" style="background:rgba(246,62,2,.22);border-radius:2px"></i>Model predicts active</span>
+          <span><i class="dot" style="border:2px dashed #1d6f72;background:none"></i>True active zone</span>
+        </div>
+      </div>
+      <p class="hint" id="plotSummary" aria-live="polite"></p>
+
+      <div class="plot-wrap" style="margin-top:16px">
+        <p class="panel-title">Accuracy as flexibility changes (same data)</p>
+        <canvas id="curve" width="640" height="220" role="img" aria-label="Line chart of training and test accuracy across neighbor counts"></canvas>
+        <div class="legend">
+          <span><i class="dot" style="background:#002D5C"></i>Training accuracy</span>
+          <span><i class="dot" style="background:#F63E02"></i>Test accuracy (new compounds)</span>
+          <span>The dot marks your current setting.</span>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top:16px">
+        <p class="panel-title">Your tasks</p>
+        <div class="tasks">
+          <div class="task">Set <strong>neighbors to 1</strong>. Training accuracy hits 100%. Is the model really that good? Compare the test accuracy.</div>
+          <div class="task">Slowly raise the neighbors. Find the setting where test accuracy is highest. What happens if you go all the way to 41?</div>
+          <div class="task">Set <strong>compounds screened to 30</strong>, then to 400. How does the amount of data change the gap between training and test?</div>
+          <div class="task">Raise <strong>assay noise</strong> to 25%. Can any setting get test accuracy back up? What does that tell you about cleaning up your assay before modeling?</div>
+          <div class="task">Click <strong>New screen</strong> a few times with the same settings. Does the best setting stay the same? Why does that matter when a vendor shows you one impressive result?</div>
+        </div>
+      </div>
+
+      <details class="card reflect" style="margin-top:16px">
+        <summary>Reflect and discuss</summary>
+        <ul>
+          <li>A vendor reports "98% accuracy." What is the first question you'd ask?</li>
+          <li>Your test compounds come from the same chemical series as your training compounds. Why might real-world accuracy still be lower?</li>
+          <li>When is a model with 75% accuracy still useful for deciding what to screen next?</li>
+        </ul>
+      </details>
+    </section>
+
+    <aside class="card" aria-label="Controls and results">
+      <p class="panel-title">Settings</p>
+      <div class="ctrl">
+        <label for="n">Compounds screened (training data): <output id="nOut"></output></label>
+        <input type="range" id="n" min="20" max="400" step="10" value="80">
+      </div>
+      <div class="ctrl">
+        <label for="noise">Assay noise (wrong labels): <output id="noiseOut"></output></label>
+        <input type="range" id="noise" min="0" max="30" step="1" value="8">
+        <p class="hint">The share of compounds recorded as the wrong result, as in a messy screen.</p>
+      </div>
+      <div class="ctrl">
+        <label for="k">Model: neighbors compared (k): <output id="kOut"></output></label>
+        <input type="range" id="k" min="1" max="41" step="2" value="1">
+        <p class="hint">The model labels a compound by looking at the k most similar screened compounds. Small k = very flexible; large k = very smooth.</p>
+      </div>
+      <div class="ctrl"><button class="btn primary" id="reseed" type="button">New screen (resample data)</button></div>
+      <p class="panel-title">Results</p>
+      <div class="stat-row" aria-live="polite">
+        <div class="stat"><div class="k">Training</div><div class="v" id="trainAcc">–</div></div>
+        <div class="stat"><div class="k">Test</div><div class="v" id="testAcc">–</div></div>
+        <div class="stat"><div class="k">Gap</div><div class="v" id="gap">–</div></div>
+        <div class="stat"><div class="k">Always "inactive"</div><div class="v" id="base">–</div></div>
+      </div>
+      <p class="hint">Test accuracy is measured on 600 new simulated compounds the model never saw, with true labels. "Always inactive" is the score of a model that never predicts a hit. Any useful model has to beat it.</p>
+    </aside>
+  </div>
+
+  <nav class="lab-nav" aria-label="Lab sequence">
+    <a href="protein-explorer.html">← Lab 1: Protein Structure Explorer</a>
+    <a href="literature-triage.html">Lab 3: Literature Triage Agent →</a>
+  </nav>
+  <div class="foot">CityUx prototype · Content CC BY 4.0, code MIT. All compounds are simulated.</div>
+</main>
+
+<script>
+// ---- Seeded random numbers so a "screen" is repeatable ----
+function rng(seed) { return function () { seed |= 0; seed = seed + 0x6D2B79F5 | 0; let t = Math.imul(seed ^ seed >>> 15, 1 | seed); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+
+// Property ranges: logP -1..6, MW 150..650 (scaled to 0..1 internally)
+const LOGP = [-1, 6], MW = [150, 650];
+// Hidden "sweet spot": a tilted ellipse around logP 2.8, MW 390
+function trulyActive(x, y) {
+  const dx = x - 0.54, dy = y - 0.48;
+  const u = dx * 0.85 + dy * 0.53, v = -dx * 0.53 + dy * 0.85;
+  return (u * u) / 0.11 + (v * v) / 0.045 < 1;
+}
+
+let seed = 7;
+const ui = id => document.getElementById(id);
+const nEl = ui('n'), noiseEl = ui('noise'), kEl = ui('k');
+
+function sample(count, noise, r) {
+  const pts = [];
+  for (let i = 0; i < count; i++) {
+    const x = r(), y = r();
+    let a = trulyActive(x, y);
+    if (noise && r() < noise) a = !a;
+    pts.push({ x, y, a });
+  }
+  return pts;
+}
+
+function predict(train, x, y, k) {
+  // k nearest neighbors, majority vote
+  const d = train.map(p => [(p.x - x) ** 2 + (p.y - y) ** 2, p.a]);
+  d.sort((a, b) => a[0] - b[0]);
+  let act = 0; const kk = Math.min(k, d.length);
+  for (let i = 0; i < kk; i++) if (d[i][1]) act++;
+  return act * 2 > kk;
+}
+
+function accuracy(train, set, k) {
+  let ok = 0; for (const p of set) if (predict(train, p.x, p.y, k) === p.a) ok++;
+  return ok / set.length;
+}
+
+const plot = ui('plot'), ctx = plot.getContext('2d');
+const curve = ui('curve'), cctx = curve.getContext('2d');
+const PAD = { l: 54, r: 14, t: 12, b: 42 };
+
+function drawPlot(train, k) {
+  const W = plot.width, H = plot.height, pw = W - PAD.l - PAD.r, ph = H - PAD.t - PAD.b;
+  ctx.clearRect(0, 0, W, H);
+  // predicted region
+  const G = 64;
+  for (let i = 0; i < G; i++) for (let j = 0; j < G; j++) {
+    const x = (i + .5) / G, y = (j + .5) / G;
+    if (predict(train, x, y, k)) { ctx.fillStyle = 'rgba(246,62,2,0.18)'; ctx.fillRect(PAD.l + i * pw / G, PAD.t + (1 - (j + 1) / G) * ph, pw / G + .5, ph / G + .5); }
+  }
+  // true zone outline
+  ctx.strokeStyle = '#1d6f72'; ctx.setLineDash([6, 5]); ctx.lineWidth = 2; ctx.beginPath();
+  for (let t = 0; t <= 200; t++) {
+    const th = t / 200 * 2 * Math.PI, u = Math.sqrt(0.11) * Math.cos(th), v = Math.sqrt(0.045) * Math.sin(th);
+    const dx = u * 0.85 - v * 0.53, dy = u * 0.53 + v * 0.85;
+    const px = PAD.l + (0.54 + dx) * pw, py = PAD.t + (1 - (0.48 + dy)) * ph;
+    t ? ctx.lineTo(px, py) : ctx.moveTo(px, py);
+  }
+  ctx.stroke(); ctx.setLineDash([]);
+  // axes
+  ctx.strokeStyle = '#d8e0ea'; ctx.lineWidth = 1; ctx.strokeRect(PAD.l, PAD.t, pw, ph);
+  ctx.fillStyle = '#4a5a6e'; ctx.font = '12px Open Sans, sans-serif'; ctx.textAlign = 'center';
+  for (let v = 0; v <= 6; v++) { const x = PAD.l + (v - LOGP[0]) / (LOGP[1] - LOGP[0]) * pw; ctx.fillText(v, x, H - PAD.b + 16); }
+  ctx.fillText('Lipophilicity (logP)', PAD.l + pw / 2, H - 6);
+  ctx.textAlign = 'right';
+  for (let v = 200; v <= 600; v += 100) { const y = PAD.t + (1 - (v - MW[0]) / (MW[1] - MW[0])) * ph; ctx.fillText(v, PAD.l - 6, y + 4); }
+  ctx.save(); ctx.translate(14, PAD.t + ph / 2); ctx.rotate(-Math.PI / 2); ctx.textAlign = 'center'; ctx.fillText('Molecular weight (Da)', 0, 0); ctx.restore();
+  // training points
+  for (const p of train) {
+    ctx.beginPath(); ctx.arc(PAD.l + p.x * pw, PAD.t + (1 - p.y) * ph, 4.5, 0, 2 * Math.PI);
+    ctx.fillStyle = p.a ? '#F63E02' : '#002D5C'; ctx.fill(); ctx.strokeStyle = '#fff'; ctx.lineWidth = 1; ctx.stroke();
+  }
+}
+
+function drawCurve(rows, k) {
+  const W = curve.width, H = curve.height, P = { l: 44, r: 14, t: 10, b: 30 }, pw = W - P.l - P.r, ph = H - P.t - P.b;
+  cctx.clearRect(0, 0, W, H);
+  const xOf = kk => P.l + (kk - 1) / 40 * pw, yOf = a => P.t + (1 - (a - 0.5) / 0.5) * ph;
+  cctx.strokeStyle = '#e6ecf2'; cctx.fillStyle = '#4a5a6e'; cctx.font = '11px Open Sans, sans-serif'; cctx.textAlign = 'right';
+  for (let a = 0.5; a <= 1.0001; a += 0.1) { const y = yOf(a); cctx.beginPath(); cctx.moveTo(P.l, y); cctx.lineTo(W - P.r, y); cctx.stroke(); cctx.fillText(Math.round(a * 100) + '%', P.l - 6, y + 4); }
+  cctx.textAlign = 'center';
+  for (let kk = 1; kk <= 41; kk += 8) cctx.fillText(kk, xOf(kk), H - P.b + 14);
+  cctx.fillText('Neighbors (k): more flexible ← → smoother', P.l + pw / 2, H - 2);
+  for (const [key, color] of [['train', '#002D5C'], ['test', '#F63E02']]) {
+    cctx.strokeStyle = color; cctx.lineWidth = 2.5; cctx.beginPath();
+    rows.forEach((r, i) => { const x = xOf(r.k), y = yOf(Math.max(0.5, r[key])); i ? cctx.lineTo(x, y) : cctx.moveTo(x, y); });
+    cctx.stroke();
+    const cur = rows.find(r => r.k === k);
+    cctx.beginPath(); cctx.arc(xOf(k), yOf(Math.max(0.5, cur[key])), 5, 0, 2 * Math.PI); cctx.fillStyle = color; cctx.fill();
+  }
+}
+
+const pct = v => (v * 100).toFixed(0) + '%';
+function update() {
+  const n = +nEl.value, noise = +noiseEl.value / 100, k = +kEl.value;
+  ui('nOut').textContent = n; ui('noiseOut').textContent = noiseEl.value + '%'; ui('kOut').textContent = k;
+  const train = sample(n, noise, rng(seed));
+  const test = sample(600, 0, rng(9999));
+  const tr = accuracy(train, train, k), te = accuracy(train, test, k), gap = tr - te;
+  ui('trainAcc').textContent = pct(tr); ui('testAcc').textContent = pct(te);
+  const g = ui('gap'); g.textContent = (gap * 100).toFixed(0) + ' pts'; g.className = 'v ' + (gap > 0.1 ? 'gap-bad' : 'gap-ok');
+  drawPlot(train, k);
+  const rows = []; for (let kk = 1; kk <= 41; kk += 2) rows.push({ k: kk, train: accuracy(train, train, kk), test: accuracy(train, test, kk) });
+  drawCurve(rows, k);
+  const best = rows.reduce((a, b) => b.test > a.test ? b : a);
+  const base = test.filter(p => !p.a).length / test.length;
+  ui('base').textContent = pct(base);
+  ui('plotSummary').textContent = `With ${n} screened compounds, ${noiseEl.value}% noise and k = ${k}: training accuracy ${pct(tr)}, test accuracy ${pct(te)}. On this data, test accuracy peaks at k = ${best.k} (${pct(best.test)}). A lazy model that always says "inactive" would score ${pct(base)}.`;
+  plot.setAttribute('aria-label', ui('plotSummary').textContent);
+}
+[nEl, noiseEl, kEl].forEach(el => el.addEventListener('input', update));
+ui('reseed').addEventListener('click', () => { seed = Math.floor(Math.random() * 1e9); update(); });
+update();
+</script>
+</body>
+</html>

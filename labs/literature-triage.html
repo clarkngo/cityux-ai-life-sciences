@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lab 3: Literature Triage Agent · CityUx Labs</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/style.css">
+  <style>
+    .abs { background: #fff; border: 1px solid var(--line); border-radius: 12px; padding: 14px 16px; margin-bottom: 12px; }
+    .abs h3 { font-size: .98rem; margin-bottom: 4px; }
+    .abs .meta { font-size: .78rem; color: var(--muted); margin-bottom: 6px; }
+    .abs p { margin: 0 0 10px; font-size: .9rem; }
+    .agent { font-size: .84rem; border-radius: 8px; padding: 8px 10px; background: var(--bg); border: 1px solid var(--line); margin-bottom: 10px; }
+    .agent b { color: var(--marine); }
+    .verdict { font-weight: 800; padding: 2px 8px; border-radius: 999px; font-size: .74rem; letter-spacing: .04em; text-transform: uppercase; }
+    .v-in { background: var(--ok-wash); color: var(--ok); }
+    .v-out { background: #eef2f6; color: var(--muted); }
+    .you { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; font-size: .84rem; }
+    .you .label { font-weight: 700; color: var(--marine); margin-right: 4px; }
+    .key { margin-top: 10px; font-size: .84rem; border-radius: 8px; padding: 8px 10px; display: none; }
+    .show-key .key { display: block; }
+    .key.right { background: var(--ok-wash); border: 1px solid #b7dfc1; }
+    .key.wrong { background: var(--bad-wash); border: 1px solid #f3c1bb; }
+    .criteria { font-size: .9rem; }
+    .criteria li { margin-bottom: 4px; }
+    .toggle { display: flex; gap: 8px; align-items: flex-start; font-size: .88rem; margin-bottom: 8px; }
+    .toggle input { margin-top: 4px; accent-color: var(--marine); }
+  </style>
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<header class="topbar">
+  <div class="topbar-inner">
+    <a href="../index.html"><img src="../assets/cityu-logo.png" alt="City University of Seattle: CityUx Labs home"></a>
+    <span class="brand-sep" aria-hidden="true"></span>
+    <span class="brand-name">CityU<span>x</span> Labs</span>
+    <nav aria-label="Labs">
+      <a href="protein-explorer.html">1 Structure</a>
+      <a href="assay-simulator.html">2 ML</a>
+      <a href="literature-triage.html" aria-current="page">3 Agents</a>
+      <a href="data-border.html">4 Data</a>
+    </nav>
+  </div>
+</header>
+
+<main id="main" class="wrap">
+  <div class="lab-head">
+    <div class="eyebrow">Lab 3 · AI agents · about 20 minutes</div>
+    <h1>Literature Triage Agent</h1>
+    <p>AI agents are now sold for screening papers for literature reviews and regulatory filings. They're fast, but they follow rules, and rules miss things. In this lab an agent screens ten abstracts for a review. Your job is to check its work, then try to make it better.</p>
+    <ul class="goals">
+      <li>Check an agent's decisions against clear inclusion criteria.</li>
+      <li>Spot the kinds of mistakes rule-following agents make: negation, synonyms, study type, retractions.</li>
+      <li>Measure an agent with precision and recall, and see why "just add another rule" has limits.</li>
+    </ul>
+  </div>
+
+  <div class="callout warn" style="margin-bottom:16px"><strong>Everything here is fictional.</strong> "Velorastat," "VLR-201," and the kinase "KX1" are made up, and so are all ten abstracts. That lets us build in realistic traps without misinforming anyone about a real drug.</div>
+
+  <div class="lab-grid">
+    <section>
+      <div class="card" style="margin-bottom:16px">
+        <p class="panel-title">The review question</p>
+        <p style="margin:0 0 8px"><strong>Does Velorastat inhibit the kinase KX1 in human cells?</strong></p>
+        <ul class="criteria">
+          <li><strong>Include:</strong> primary experimental studies that test Velorastat (also called VLR-201) on KX1 in human cells, <em>whatever the result</em>. Negative results count as evidence too.</li>
+          <li><strong>Exclude:</strong> review articles, animal-only studies, computer-only (in silico) studies, studies of other compounds, and retracted papers.</li>
+        </ul>
+      </div>
+      <div id="list"></div>
+
+      <details class="card reflect" style="margin-top:16px">
+        <summary>Reflect and discuss</summary>
+        <ul>
+          <li>The agent got some papers right for the wrong reason. Why is that a problem even when the final answer is correct?</li>
+          <li>For a review, which mistake is worse: including a bad paper (low precision) or missing a good one (low recall)? Would your answer change for a safety review?</li>
+          <li>Today's AI agents use language models rather than keyword rules, so they handle synonyms better. Which of the traps here could still catch them?</li>
+          <li>What would a sensible human-checking step look like in your workplace if an agent did the first pass?</li>
+        </ul>
+      </details>
+    </section>
+
+    <aside class="card" aria-label="Agent settings and score">
+      <p class="panel-title">Your tasks</p>
+      <div class="tasks">
+        <div class="task">Read each abstract and the agent's reasoning. Mark whether you'd <strong>include</strong> or <strong>exclude</strong> it.</div>
+        <div class="task">Click <strong>Check answers</strong> to compare you and the agent with the answer key.</div>
+        <div class="task">Turn on the agent upgrades one at a time. Which mistakes do they fix? Which do they miss?</div>
+      </div>
+      <p class="panel-title" style="margin-top:14px">Agent upgrades</p>
+      <label class="toggle"><input type="checkbox" data-opt="syn"> Know the code name VLR-201</label>
+      <label class="toggle"><input type="checkbox" data-opt="verbs"> Accept "suppress," "reduce," "block" as well as "inhibit"</label>
+      <label class="toggle"><input type="checkbox" data-opt="review"> Skip anything containing the word "review"</label>
+      <label class="toggle"><input type="checkbox" data-opt="retract"> Skip anything mentioning a retraction</label>
+      <label class="toggle"><input type="checkbox" data-opt="animal"> Skip anything mentioning mice or rats</label>
+
+      <div class="ctrl" style="margin-top:12px"><button class="btn primary" id="check" type="button" aria-pressed="false">Check answers</button></div>
+      <p class="panel-title">Score (against the key)</p>
+      <div class="stat-row" aria-live="polite">
+        <div class="stat"><div class="k">Agent right</div><div class="v" id="agentScore">–</div></div>
+        <div class="stat"><div class="k">You right</div><div class="v" id="youScore">–</div></div>
+        <div class="stat"><div class="k">Agent precision</div><div class="v" id="prec">–</div></div>
+        <div class="stat"><div class="k">Agent recall</div><div class="v" id="rec">–</div></div>
+      </div>
+      <p class="hint"><strong>Precision:</strong> of the papers the agent included, how many belonged. <strong>Recall:</strong> of the papers that belonged, how many the agent found.</p>
+    </aside>
+  </div>
+
+  <nav class="lab-nav" aria-label="Lab sequence">
+    <a href="assay-simulator.html">← Lab 2: Assay Hit Predictor</a>
+    <a href="data-border.html">Lab 4: Can This Data Cross the Border? →</a>
+  </nav>
+  <div class="foot">CityUx prototype · Content CC BY 4.0, code MIT. All compounds, studies, and authors are fictional.</div>
+</main>
+
+<script>
+const ABSTRACTS = [
+  { t: 'Velorastat inhibits KX1 signaling in human bronchial epithelial cells', m: 'Fictional journal of cell signaling · primary study',
+    a: 'We treated primary human bronchial epithelial cells with Velorastat (0.1–10 µM). Velorastat inhibited KX1 phosphorylation in a dose-dependent manner, with an IC50 of 0.8 µM.',
+    key: true, why: 'Primary study, Velorastat, KX1, human cells. A straightforward include.' },
+  { t: 'No effect of Velorastat on KX1 activity in human hepatocytes', m: 'Fictional hepatology letters · primary study',
+    a: 'In cultured human hepatocytes, Velorastat did not inhibit KX1 at any concentration tested (up to 20 µM), suggesting tissue-specific effects.',
+    key: true, why: 'A negative result still answers the question, so it belongs. The agent includes it only because it sees the word "inhibit"; it doesn\'t notice the "did not". Right answer, wrong reason.' },
+  { t: 'Velorastat reduces airway inflammation in a mouse model of asthma', m: 'Fictional respiratory research · animal study',
+    a: 'Mice treated with Velorastat showed reduced airway inflammation, and the drug appeared to inhibit KX1 in lung tissue. These findings support future human trials.',
+    key: false, why: 'An animal-only study. The word "human" appears only in "future human trials", which fools a keyword agent.' },
+  { t: 'VLR-201 suppresses KX1 in human T cells', m: 'Fictional immunology reports · primary study',
+    a: 'Using CRISPR reporter lines derived from human T cells, we show that VLR-201 suppressed KX1 kinase activity by 70% at 1 µM.',
+    key: true, why: 'This is Velorastat under its code name, and it says "suppressed" rather than "inhibited". A keyword agent misses it twice over.' },
+  { t: 'Kinase inhibitors in respiratory disease: a review', m: 'Fictional pharmacology reviews · review article',
+    a: 'We review recent work on kinase inhibitors, including Velorastat, which has been reported to inhibit KX1 in human airway cells.',
+    key: false, why: 'A review article, not primary data. Reviews are useful for finding the original studies, but they\'re excluded here.' },
+  { t: 'Compound ZT-88 inhibits KX1 in human macrophages', m: 'Fictional journal of inflammation · primary study',
+    a: 'ZT-88, a structural analog developed after Velorastat, inhibited KX1 in human monocyte-derived macrophages.',
+    key: false, why: 'A different compound. Velorastat is mentioned only for context.' },
+  { t: '[RETRACTED] Velorastat inhibits KX1 and blocks fibrosis in human lung fibroblasts', m: 'Fictional journal of fibrosis · retracted',
+    a: 'This article has been retracted at the request of the authors because of image duplication. Velorastat was reported to inhibit KX1 in human lung fibroblasts.',
+    key: false, why: 'Retracted papers must not be used as evidence. This trap is easy to miss when an agent reads only the text, not the paper\'s status.' },
+  { t: 'Velorastat inhibits KX1-dependent proliferation in human keratinocytes', m: 'Fictional dermatology science · primary study',
+    a: 'Velorastat inhibited KX1 and reduced proliferation of HaCaT human keratinocytes. Effects were reversed by a KX1 overexpression construct.',
+    key: true, why: 'A primary study in a human cell line. Include.' },
+  { t: 'Docking simulations predict Velorastat binding to human KX1', m: 'Fictional computational chemistry · in silico study',
+    a: 'Molecular docking against a predicted structure of human KX1 suggests Velorastat may inhibit the kinase by occupying the ATP pocket.',
+    key: false, why: 'Computer-only. A prediction like this (compare Lab 1) is a reason to run an experiment, not evidence that the drug works.' },
+  { t: 'Rats and human organoids: Velorastat blocks KX1 in gut tissue', m: 'Fictional gastroenterology research · primary study',
+    a: 'Velorastat blocked KX1 activation both in rat colon and in human intestinal organoids, with similar potency.',
+    key: true, why: 'It includes human organoids, so it belongs even though it also uses rats. The "skip mice and rats" upgrade wrongly throws it out.' }
+];
+
+const opts = {};
+document.querySelectorAll('[data-opt]').forEach(cb => cb.addEventListener('change', () => { opts[cb.dataset.opt] = cb.checked; render(); }));
+const you = {};
+
+function agent(p) {
+  const text = (p.t + ' ' + p.a).toLowerCase();
+  const steps = [];
+  const drug = /velorastat/.test(text) || (opts.syn && /vlr-201/.test(text));
+  steps.push(drug ? 'found the drug name' : 'didn\'t find "Velorastat"');
+  const action = /inhibit/.test(text) || (opts.verbs && /(suppress|reduc|block)/.test(text));
+  steps.push(action ? 'found an inhibition word' : 'no inhibition word');
+  const human = /human/.test(text);
+  steps.push(human ? 'found "human"' : 'no "human"');
+  let include = drug && action && human;
+  if (include && opts.review && /review/.test(text)) { include = false; steps.push('skipped: contains "review"'); }
+  if (include && opts.retract && /retract/.test(text)) { include = false; steps.push('skipped: mentions retraction'); }
+  if (include && opts.animal && /(mice|mouse|rats?\b)/.test(text)) { include = false; steps.push('skipped: mentions mice or rats'); }
+  return { include, steps };
+}
+
+const list = document.getElementById('list');
+function render() {
+  list.innerHTML = '';
+  let agentRight = 0, youRight = 0, answered = 0, tp = 0, fp = 0, fn = 0;
+  ABSTRACTS.forEach((p, i) => {
+    const r = agent(p);
+    if (r.include === p.key) agentRight++;
+    if (r.include && p.key) tp++; if (r.include && !p.key) fp++; if (!r.include && p.key) fn++;
+    if (you[i] !== undefined) { answered++; if (you[i] === p.key) youRight++; }
+    const agentOk = r.include === p.key;
+    const div = document.createElement('article');
+    div.className = 'abs';
+    div.innerHTML = `
+      <h3>${i + 1}. ${p.t}</h3>
+      <div class="meta">${p.m}</div>
+      <p>${p.a}</p>
+      <div class="agent"><b>Agent:</b> <span class="verdict ${r.include ? 'v-in' : 'v-out'}">${r.include ? 'Include' : 'Exclude'}</span> · ${r.steps.join(' → ')}</div>
+      <div class="you" role="group" aria-label="Your decision for abstract ${i + 1}">
+        <span class="label">You:</span>
+        <button class="btn" type="button" data-i="${i}" data-v="1" aria-pressed="${you[i] === true}">Include</button>
+        <button class="btn" type="button" data-i="${i}" data-v="0" aria-pressed="${you[i] === false}">Exclude</button>
+      </div>
+      <div class="key ${agentOk ? 'right' : 'wrong'}"><strong>Key: ${p.key ? 'Include' : 'Exclude'}.</strong> Agent was ${agentOk ? 'right' : 'wrong'}${you[i] === undefined ? '' : `; you were ${you[i] === p.key ? 'right' : 'wrong'}`}. ${p.why}</div>`;
+    list.appendChild(div);
+  });
+  list.querySelectorAll('button[data-i]').forEach(b => b.addEventListener('click', () => { you[b.dataset.i] = b.dataset.v === '1'; render(); document.querySelector(`button[data-i="${b.dataset.i}"][data-v="${b.dataset.v}"]`).focus(); }));
+  const checked = document.body.classList.contains('show-key');
+  document.getElementById('agentScore').textContent = checked ? `${agentRight}/10` : '–';
+  document.getElementById('youScore').textContent = checked ? `${youRight}/${answered || 0}` : '–';
+  document.getElementById('prec').textContent = checked ? (tp + fp ? Math.round(tp / (tp + fp) * 100) + '%' : '–') : '–';
+  document.getElementById('rec').textContent = checked ? Math.round(tp / (tp + fn) * 100) + '%' : '–';
+}
+document.getElementById('check').addEventListener('click', e => {
+  const on = document.body.classList.toggle('show-key');
+  e.target.setAttribute('aria-pressed', on); e.target.textContent = on ? 'Hide answers' : 'Check answers';
+  render();
+});
+render();
+</script>
+</body>
+</html>

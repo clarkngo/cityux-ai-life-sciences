@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lab 4: Can This Data Cross the Border? · CityUx Labs</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/style.css">
+  <style>
+    .scenario { background: #fff; border: 1px solid var(--line); border-radius: 12px; padding: 16px; margin-bottom: 14px; }
+    .scenario h3 { font-size: 1rem; }
+    .scenario .dir { font-size: .76rem; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: var(--teal-ink); }
+    .scenario p { margin: 6px 0 12px; font-size: .92rem; }
+    .choices { display: flex; flex-wrap: wrap; gap: 8px; }
+    .fb { margin-top: 12px; padding: 10px 12px; border-radius: 8px; font-size: .88rem; }
+    .fb.right { background: var(--ok-wash); border: 1px solid #b7dfc1; }
+    .fb.wrong { background: var(--bad-wash); border: 1px solid #f3c1bb; }
+    .ans { font-weight: 800; }
+    .a-share { color: var(--ok); } .a-review { color: var(--warn); } .a-no { color: var(--bad); }
+    .rules li { margin-bottom: 8px; font-size: .9rem; }
+  </style>
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<header class="topbar">
+  <div class="topbar-inner">
+    <a href="../index.html"><img src="../assets/cityu-logo.png" alt="City University of Seattle: CityUx Labs home"></a>
+    <span class="brand-sep" aria-hidden="true"></span>
+    <span class="brand-name">CityU<span>x</span> Labs</span>
+    <nav aria-label="Labs">
+      <a href="protein-explorer.html">1 Structure</a>
+      <a href="assay-simulator.html">2 ML</a>
+      <a href="literature-triage.html">3 Agents</a>
+      <a href="data-border.html" aria-current="page">4 Data</a>
+    </nav>
+  </div>
+</header>
+
+<main id="main" class="wrap">
+  <div class="lab-head">
+    <div class="eyebrow">Lab 4 · Data governance · about 15 minutes</div>
+    <h1>Can This Data Cross the Border?</h1>
+    <p>AI in biology runs on data, and more and more rules decide where that data may go. A Seattle university and a partner university in Shenzhen want to run a joint AI-for-biology course. For each request below, decide: share it, get a review first, or don't share it.</p>
+    <ul class="goals">
+      <li>Recognize which kinds of data carry cross-border risk: human genetic data, health data, personal data, and data tied to restricted companies.</li>
+      <li>See why "methods, not data" keeps international teaching collaborations simple.</li>
+      <li>Know when to stop and ask your compliance or research office.</li>
+    </ul>
+  </div>
+
+  <div class="callout warn" style="margin-bottom:16px"><strong>This is not legal advice.</strong> The rules summarized here are simplified for teaching and change often. Real decisions belong with your institution's compliance, export-control, or research-integrity office.</div>
+
+  <div class="lab-grid">
+    <section id="list" aria-label="Scenarios"></section>
+
+    <aside class="card" aria-label="Score and key rules">
+      <p class="panel-title">Your score</p>
+      <div class="stat-row" aria-live="polite">
+        <div class="stat"><div class="k">Answered</div><div class="v" id="answered">0/8</div></div>
+        <div class="stat"><div class="k">Matches</div><div class="v" id="score">0</div></div>
+      </div>
+      <div class="ctrl" style="margin-top:12px"><button class="btn" id="reset" type="button">Start over</button></div>
+      <p class="panel-title" style="margin-top:6px">The rules in play</p>
+      <ul class="rules">
+        <li><strong>China's human genetic resources rules</strong> require government approval before human genetic samples or data collected in China go to foreign parties.</li>
+        <li><strong>US rules on bulk sensitive data</strong> restrict giving large amounts of Americans' genomic, health, and other sensitive personal data to people and companies in countries of concern, including China. De-identifying the data doesn't remove the restriction.</li>
+        <li><strong>US trade restrictions and biosecurity legislation</strong> name certain Chinese biotech companies. Working with them can bring legal and funding risk.</li>
+        <li><strong>Student and personal data</strong> is protected on both sides: FERPA in the US and the Personal Information Protection Law (PIPL) in China.</li>
+        <li><strong>Public and synthetic data</strong> are the safe default for teaching.</li>
+      </ul>
+      <details class="reflect" style="margin-top:10px">
+        <summary>Reflect and discuss</summary>
+        <ul>
+          <li>Which scenario surprised you most? Why?</li>
+          <li>Who in your organization would you ask about a cross-border data question? Do you know their name?</li>
+          <li>How could you design a joint project so that no sensitive data ever needs to move?</li>
+        </ul>
+      </details>
+    </aside>
+  </div>
+
+  <nav class="lab-nav" aria-label="Lab sequence">
+    <a href="literature-triage.html">← Lab 3: Literature Triage Agent</a>
+    <a href="../index.html">All labs →</a>
+  </nav>
+  <div class="foot">CityUx prototype · Content CC BY 4.0, code MIT. Scenarios are fictional and simplified; not legal advice.</div>
+</main>
+
+<script>
+const LABELS = { share: 'Share it', review: 'Review first', no: "Don't share" };
+const SCENARIOS = [
+  { dir: 'Seattle → Shenzhen', t: 'Public protein structures for a joint class',
+    d: 'The course wants both classes to work with protein structures downloaded from the Protein Data Bank and the AlphaFold database.',
+    ans: 'share', why: 'These are public databases anyone in the world can download, published under open licenses. This is exactly the kind of data joint teaching should use.' },
+  { dir: 'Seattle → Shenzhen', t: 'Simulated screening data',
+    d: 'An instructor generated a made-up compound-screening dataset for a machine-learning exercise (like Lab 2) and wants to share it with the partner class.',
+    ans: 'share', why: 'Synthetic data describes no real person or company. It\'s the safest way to teach with realistic-looking data.' },
+  { dir: 'Seattle → Shenzhen', t: 'Hospital genomes for a student project',
+    d: 'A Seattle hospital researcher offers 5,000 de-identified whole-genome sequences from patients so mixed US–China student teams can train a model.',
+    ans: 'no', why: 'Bulk human genomic data on Americans is the kind of data the US bulk sensitive data rules restrict from going to China, and de-identification doesn\'t change that. Patient consent and health-privacy rules add more barriers. Use a public or synthetic dataset instead.' },
+  { dir: 'Shenzhen → Seattle', t: 'Genotypes from volunteers in Shenzhen',
+    d: 'Shenzhen students collected cheek swabs from volunteers, genotyped them, and want to send the raw data to Seattle for analysis.',
+    ans: 'review', why: 'China\'s human genetic resources rules require approval before human genetic data collected in China goes to a foreign party. This can\'t happen without that approval, plus consent and ethics review. In practice, the simpler path is to analyze the data in Shenzhen and share only methods or published summaries.' },
+  { dir: 'Seattle → Shenzhen', t: 'An open-source model trained on public data',
+    d: 'The Seattle class fine-tuned an open-weight protein language model on public sequences and wants to share the model files and code.',
+    ans: 'share', why: 'Openly published models and code trained on public data are generally fine to share for teaching. A quick check is still wise for anything near the cutting edge, since export-control rules on advanced AI are changing.' },
+  { dir: 'Shenzhen → Seattle', t: 'Assay data from a partner company',
+    d: 'One of the partner university\'s industry practice bases is a large genomics company named in US biosecurity legislation. It offers its internal assay data for a joint project.',
+    ans: 'no', why: 'Working with a company named on US restriction lists or in biosecurity legislation can create legal and federal-funding risk for the US university, whatever the data. Keep joint work with partners like this out of the course and use public data instead. Other partners carry less risk but still need a contract and a review.' },
+  { dir: 'Both ways', t: 'A shared class roster',
+    d: 'To set up mixed teams, the instructors want to put both universities\' student names, emails, and grades in one shared spreadsheet.',
+    ans: 'review', why: 'Student records are protected by FERPA in the US, and personal information leaving China falls under PIPL. Share the minimum (names and a course email, not grades), get consent, and check with both registrars.' },
+  { dir: 'Seattle → Shenzhen', t: 'Numbers from published papers',
+    d: 'Students compiled effect sizes and summary statistics from 40 published studies into a table for a meta-analysis exercise.',
+    ans: 'share', why: 'Summaries of published work are already public. Cite the sources, and you\'re fine.' }
+];
+
+const picks = {};
+const list = document.getElementById('list');
+function render() {
+  list.innerHTML = '';
+  let answered = 0, score = 0;
+  SCENARIOS.forEach((s, i) => {
+    const p = picks[i];
+    if (p) { answered++; if (p === s.ans) score++; }
+    const el = document.createElement('article');
+    el.className = 'scenario';
+    el.innerHTML = `
+      <div class="dir">${i + 1} · ${s.dir}</div>
+      <h3>${s.t}</h3>
+      <p>${s.d}</p>
+      <div class="choices" role="group" aria-label="Your decision for scenario ${i + 1}">
+        ${Object.entries(LABELS).map(([k, v]) => `<button class="btn" type="button" data-i="${i}" data-v="${k}" aria-pressed="${p === k}">${v}</button>`).join('')}
+      </div>
+      ${p ? `<div class="fb ${p === s.ans ? 'right' : 'wrong'}" role="status"><span class="ans a-${s.ans}">Suggested: ${LABELS[s.ans]}.</span> ${s.why}</div>` : ''}`;
+    list.appendChild(el);
+  });
+  list.querySelectorAll('button[data-i]').forEach(b => b.addEventListener('click', () => {
+    picks[b.dataset.i] = b.dataset.v; render();
+    document.querySelector(`button[data-i="${b.dataset.i}"][data-v="${b.dataset.v}"]`).focus();
+  }));
+  document.getElementById('answered').textContent = `${answered}/${SCENARIOS.length}`;
+  document.getElementById('score').textContent = score;
+}
+document.getElementById('reset').addEventListener('click', () => { Object.keys(picks).forEach(k => delete picks[k]); render(); });
+render();
+</script>
+</body>
+</html>

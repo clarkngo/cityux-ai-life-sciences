@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI for Life-Science Professionals · CityUx Labs</title>
+  <meta name="description" content="Free, hands-on browser labs on AI for people who work in life sciences. A CityUx prototype from City University of Seattle.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<header class="topbar">
+  <div class="topbar-inner">
+    <img src="assets/cityu-logo.png" alt="City University of Seattle">
+    <span class="brand-sep" aria-hidden="true"></span>
+    <span class="brand-name">CityU<span>x</span> Labs</span>
+    <nav aria-label="Labs">
+      <a href="#labs">Labs</a>
+      <a href="#how">How it works</a>
+      <a href="#data">Data rule</a>
+    </nav>
+  </div>
+</header>
+
+<main id="main" class="wrap">
+  <section class="hero">
+    <div class="eyebrow">CityUx · Prototype</div>
+    <h1>AI for Life-Science Professionals</h1>
+    <p>Hands-on labs for scientists, lab staff, and anyone in biotech or health who wants to use AI with confidence. Everything runs in your browser. There's nothing to install, no account to create, and no cost.</p>
+    <div class="pill-row">
+      <span class="pill">4 labs · about 20 minutes each</span>
+      <span class="pill">No coding needed</span>
+      <span class="pill">Public and synthetic data only</span>
+    </div>
+  </section>
+
+  <h2 id="labs">The labs</h2>
+  <div class="grid">
+    <a class="card lab-card" href="labs/protein-explorer.html">
+      <span class="num">Lab 1 · Structure</span>
+      <h3>Protein Structure Explorer</h3>
+      <p>Load real proteins from the Protein Data Bank, then compare them with AI-predicted structures from AlphaFold. See where the AI is confident and where it isn't.</p>
+      <span class="go">Open lab →</span>
+    </a>
+    <a class="card lab-card" href="labs/assay-simulator.html">
+      <span class="num">Lab 2 · Machine learning</span>
+      <h3>Assay Hit Predictor</h3>
+      <p>Train a model to predict which compounds are active, using simulated screening data. Change the amount of data, the noise, and the model's flexibility, and watch it overfit.</p>
+      <span class="go">Open lab →</span>
+    </a>
+    <a class="card lab-card" href="labs/literature-triage.html">
+      <span class="num">Lab 3 · AI agents</span>
+      <h3>Literature Triage Agent</h3>
+      <p>A simple AI agent sorts research abstracts for a review. You check its work. Find where it misses things, and see why a human still has to read the papers.</p>
+      <span class="go">Open lab →</span>
+    </a>
+    <a class="card lab-card" href="labs/data-border.html">
+      <span class="num">Lab 4 · Data governance</span>
+      <h3>Can This Data Cross the Border?</h3>
+      <p>Eight short scenarios from US–China research collaboration. For each one, decide whether the data can be shared, needs review, or should stay put.</p>
+      <span class="go">Open lab →</span>
+    </a>
+  </div>
+
+  <h2 id="how">How it works</h2>
+  <div class="grid">
+    <div class="card"><h3>Learn by doing</h3><p class="hint">Each lab has a short goal, a working tool, and a few tasks. You'll build or test something, not just read about it.</p></div>
+    <div class="card"><h3>Go at your own pace</h3><p class="hint">Built for working adults. Every lab stands on its own, so start with whichever one fits your job.</p></div>
+    <div class="card"><h3>Check your thinking</h3><p class="hint">Each lab ends with reflection questions you can bring to your team, a workshop, or a CityUx seminar.</p></div>
+  </div>
+
+  <h2 id="data">The data rule</h2>
+  <div class="callout">
+    <strong>Methods, not sensitive data.</strong> These labs use only public datasets (such as the Protein Data Bank and the AlphaFold database) or data we made up for teaching. No patient, genetic, or company data is used anywhere. That's deliberate: it keeps the labs safe to share across institutions and countries. Lab 4 explains why.
+  </div>
+
+  <h2>About this prototype</h2>
+  <p>This is an early prototype from <strong>CityUx</strong>, City University of Seattle's open learning space for workshops, seminars, and micro-credentials. The content hasn't yet been reviewed by a life-science domain expert. If you spot something wrong, please <a href="https://github.com/clarkngo/cityux-ai-life-sciences/issues">open an issue</a>.</p>
+
+  <div class="foot">
+    © 2026 Clark Ngo, City University of Seattle. Content is licensed <a href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0</a>, and code is MIT. See <a href="https://github.com/clarkngo/cityux-ai-life-sciences/blob/main/LICENSE.md">LICENSE</a>. The City University of Seattle name and logo are trademarks and aren't covered by the license.
+  </div>
+</main>
+</body>
+</html>

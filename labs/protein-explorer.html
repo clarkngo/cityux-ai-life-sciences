@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lab 1: Protein Structure Explorer · CityUx Labs</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/style.css">
+  <script src="https://cdn.jsdelivr.net/npm/3dmol@2.4.0/build/3Dmol-min.js"></script>
+  <style>
+    .viewers { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    @media (max-width: 640px) { .viewers { grid-template-columns: 1fr; } }
+    .viewer-box { background: #fff; border: 1px solid var(--line); border-radius: 12px; overflow: hidden; }
+    .viewer-box header { padding: 10px 12px; border-bottom: 1px solid var(--line); font-size: .85rem; }
+    .viewer-box header strong { color: var(--marine); display: block; }
+    .viewer { position: relative; width: 100%; height: 340px; }
+    .loading { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; color: var(--muted); font-size: .9rem; text-align: center; padding: 12px; }
+    .legend { display: flex; flex-wrap: wrap; gap: 6px 12px; font-size: .78rem; padding: 8px 12px; border-top: 1px solid var(--line); }
+    .legend span { display: inline-flex; align-items: center; gap: 5px; }
+    .legend i { width: 12px; height: 12px; border-radius: 3px; display: inline-block; }
+    .protein-blurb { font-size: .9rem; color: var(--muted); margin: 6px 0 0; }
+  </style>
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<header class="topbar">
+  <div class="topbar-inner">
+    <a href="../index.html"><img src="../assets/cityu-logo.png" alt="City University of Seattle: CityUx Labs home"></a>
+    <span class="brand-sep" aria-hidden="true"></span>
+    <span class="brand-name">CityU<span>x</span> Labs</span>
+    <nav aria-label="Labs">
+      <a href="protein-explorer.html" aria-current="page">1 Structure</a>
+      <a href="assay-simulator.html">2 ML</a>
+      <a href="literature-triage.html">3 Agents</a>
+      <a href="data-border.html">4 Data</a>
+    </nav>
+  </div>
+</header>
+
+<main id="main" class="wrap">
+  <div class="lab-head">
+    <div class="eyebrow">Lab 1 · Structure · about 20 minutes</div>
+    <h1>Protein Structure Explorer</h1>
+    <p>AI tools like AlphaFold can now predict a protein's 3D shape from its sequence. But a prediction isn't a measurement. In this lab you'll put a structure measured in the lab next to the AI's prediction and learn to read the AI's own confidence score.</p>
+    <ul class="goals">
+      <li>Compare an experimental structure (Protein Data Bank) with an AI-predicted one (AlphaFold).</li>
+      <li>Read pLDDT, AlphaFold's per-residue confidence score.</li>
+      <li>Explain why low confidence often points to biology (flexible or disordered regions), not just AI error.</li>
+    </ul>
+  </div>
+
+  <div class="lab-grid">
+    <section aria-label="Viewers">
+      <div class="viewers">
+        <div class="viewer-box">
+          <header><strong>Measured in the lab</strong><span id="expLabel">Protein Data Bank</span></header>
+          <div class="viewer" id="expViewer" role="img" aria-label="Experimental structure"><div class="loading" id="expLoading">Loading…</div></div>
+          <div class="legend" aria-hidden="true"><span><i style="background:linear-gradient(90deg,#3b4cc0,#7cc6c8,#f5c242,#e4572e)"></i>Start → end of chain</span><span><i style="background:#b8c2cc"></i>Other molecules</span></div>
+        </div>
+        <div class="viewer-box">
+          <header><strong>Predicted by AI</strong><span id="afLabel">AlphaFold Database</span></header>
+          <div class="viewer" id="afViewer" role="img" aria-label="AlphaFold predicted structure"><div class="loading" id="afLoading">Loading…</div></div>
+          <div class="legend">
+            <span><i style="background:#0053D6"></i>Very high (&gt;90)</span>
+            <span><i style="background:#65CBF3"></i>Confident (70–90)</span>
+            <span><i style="background:#FFDB13"></i>Low (50–70)</span>
+            <span><i style="background:#FF7D45"></i>Very low (&lt;50)</span>
+          </div>
+        </div>
+      </div>
+      <p class="hint">Drag to rotate, scroll or pinch to zoom. Colors on the right show pLDDT, AlphaFold's confidence for each residue.</p>
+
+      <div class="card" style="margin-top:16px">
+        <p class="panel-title">Your tasks</p>
+        <div class="tasks">
+          <div class="task">Start with <strong>lysozyme</strong>. Compare the two shapes. How much of the prediction is dark blue? Then look at the counts: the AI model has 147 residues but the lab structure has 129. Find the orange tail. (Hint: the first 18 residues are a signal sequence that's cut off before the enzyme does its job.)</div>
+          <div class="task">Switch to <strong>p53</strong>. The lab structure covers only part of the protein. Look at the AI's prediction: where is it confident, and where is it orange?</div>
+          <div class="task">Switch to <strong>insulin</strong>. The AI predicts the whole precursor protein (110 residues), but the lab structure has two short chains. Which parts are low confidence, and why might that be? (Hint: parts of the precursor are cut away in the mature hormone.)</div>
+          <div class="task">For each protein, note the mean pLDDT and the share of residues below 50. Which protein would you trust the AI on most for planning an experiment?</div>
+        </div>
+      </div>
+
+      <details class="card reflect" style="margin-top:16px">
+        <summary>Reflect and discuss</summary>
+        <ul>
+          <li>AlphaFold's confidence is about its own prediction, not about whether the protein binds your drug. What would you still need to test in the lab?</li>
+          <li>Low pLDDT often marks regions that really are floppy in the cell. How would you explain that to a colleague who says "the AI got it wrong"?</li>
+          <li>Where in your own work could a predicted structure save time, and where would it be risky to rely on one?</li>
+        </ul>
+      </details>
+    </section>
+
+    <aside class="card" aria-label="Controls and results">
+      <p class="panel-title">Choose a protein</p>
+      <div class="ctrl">
+        <label for="protein">Protein</label>
+        <select id="protein"></select>
+        <p class="protein-blurb" id="blurb"></p>
+      </div>
+      <p class="panel-title">AI confidence</p>
+      <div class="stat-row" aria-live="polite">
+        <div class="stat"><div class="k">Mean pLDDT</div><div class="v" id="mean">–</div></div>
+        <div class="stat"><div class="k">Below 50</div><div class="v" id="low">–</div></div>
+      </div>
+      <p class="panel-title" style="margin-top:14px">Coverage</p>
+      <div class="stat-row">
+        <div class="stat"><div class="k">AI residues</div><div class="v" id="afLen">–</div></div>
+        <div class="stat"><div class="k">Lab residues</div><div class="v" id="expLen">–</div></div>
+      </div>
+      <p class="hint" id="res"></p>
+      <p class="hint">Data: <a href="https://www.rcsb.org/" target="_blank" rel="noopener">RCSB Protein Data Bank</a> and <a href="https://alphafold.ebi.ac.uk/" target="_blank" rel="noopener">AlphaFold Protein Structure Database</a> (EMBL-EBI, CC BY 4.0). Both are fetched live from their public sites.</p>
+    </aside>
+  </div>
+
+  <nav class="lab-nav" aria-label="Lab sequence">
+    <a href="../index.html">← All labs</a>
+    <a href="assay-simulator.html">Lab 2: Assay Hit Predictor →</a>
+  </nav>
+  <div class="foot">CityUx prototype · Content CC BY 4.0, code MIT. Not yet reviewed by a life-science domain expert.</div>
+</main>
+
+<script>
+const PROTEINS = [
+  { id: 'lyz', name: 'Lysozyme (hen egg white)', pdb: '1LYZ', uniprot: 'P00698', chains: null,
+    blurb: 'An enzyme that breaks down bacterial cell walls. One of the most studied proteins, and a classic "easy" case for AI.' },
+  { id: 'gfp', name: 'Green fluorescent protein', pdb: '1EMA', uniprot: 'P42212', chains: null,
+    blurb: 'The glowing jellyfish protein used as a tag in labs everywhere. A barrel shape with the light-making part inside.' },
+  { id: 'hba', name: 'Hemoglobin, alpha chain', pdb: '4HHB', uniprot: 'P69905', chains: ['A'],
+    blurb: 'Carries oxygen in red blood cells. The lab structure has four chains; we highlight the alpha chain (A) that the AI predicts.' },
+  { id: 'ins', name: 'Insulin (human)', pdb: '3I40', uniprot: 'P01308', chains: null,
+    blurb: 'The hormone is made as one longer precursor and then cut. The lab structure shows the mature two-chain form.' },
+  { id: 'p53', name: 'p53 tumor suppressor', pdb: '1TUP', uniprot: 'P04637', chains: ['A'],
+    blurb: 'A key cancer protein. The lab structure shows only its DNA-binding core (chain A) bound to DNA; much of the rest is flexible.' }
+];
+
+const sel = document.getElementById('protein');
+PROTEINS.forEach(p => { const o = document.createElement('option'); o.value = p.id; o.textContent = p.name; sel.appendChild(o); });
+
+let expV, afV;
+function viewers() {
+  if (!expV) expV = $3Dmol.createViewer(document.getElementById('expViewer'), { backgroundColor: 'white' });
+  if (!afV) afV = $3Dmol.createViewer(document.getElementById('afViewer'), { backgroundColor: 'white' });
+}
+
+function plddtColor(b) {
+  if (b > 90) return '#0053D6';
+  if (b > 70) return '#65CBF3';
+  if (b > 50) return '#FFDB13';
+  return '#FF7D45';
+}
+
+function caAtoms(text, chains) {
+  const out = [];
+  for (const line of text.split('\n')) {
+    if (!line.startsWith('ATOM') || line.substr(12, 4).trim() !== 'CA') continue;
+    const chain = line.substr(21, 1).trim();
+    if (chains && !chains.includes(chain)) continue;
+    out.push({ chain, b: parseFloat(line.substr(60, 6)) });
+  }
+  return out;
+}
+
+function setLoading(id, msg) {
+  const el = document.getElementById(id);
+  el.style.display = msg ? 'flex' : 'none';
+  if (msg) el.textContent = msg;
+}
+
+async function load(p) {
+  viewers();
+  document.getElementById('blurb').textContent = p.blurb;
+  ['mean', 'low', 'afLen', 'expLen'].forEach(k => document.getElementById(k).textContent = '–');
+  document.getElementById('res').textContent = '';
+  document.getElementById('expLabel').textContent = 'Protein Data Bank · ' + p.pdb;
+  document.getElementById('afLabel').textContent = 'AlphaFold Database · ' + p.uniprot;
+  expV.clear(); afV.clear(); expV.render(); afV.render();
+  setLoading('expLoading', 'Loading ' + p.pdb + ' from the Protein Data Bank…');
+  setLoading('afLoading', 'Loading the AlphaFold prediction…');
+
+  // Experimental structure
+  fetch('https://files.rcsb.org/download/' + p.pdb + '.pdb')
+    .then(r => { if (!r.ok) throw new Error(r.status); return r.text(); })
+    .then(text => {
+      if (sel.value !== p.id) return;
+      expV.addModel(text, 'pdb');
+      expV.setStyle({}, { cartoon: { color: '#b8c2cc' } });
+      const focus = p.chains ? { chain: p.chains } : { hetflag: false };
+      expV.setStyle(focus, { cartoon: { color: 'spectrum' } });
+      expV.setStyle({ resn: 'HOH' }, {});
+      expV.zoomTo(focus); expV.render();
+      setLoading('expLoading', '');
+      const cas = caAtoms(text, p.chains);
+      document.getElementById('expLen').textContent = cas.length;
+      const m = text.match(/^REMARK   2 RESOLUTION\.\s+([\d.]+)/m);
+      if (m) document.getElementById('res').textContent = 'Lab structure resolution: ' + m[1] + ' Å (lower is sharper).';
+      document.getElementById('expViewer').setAttribute('aria-label', 'Experimental structure ' + p.pdb + ' of ' + p.name + ', ' + cas.length + ' residues shown in color.');
+    })
+    .catch(() => setLoading('expLoading', 'Couldn\'t load the Protein Data Bank file. Check your connection and try again.'));
+
+  // AlphaFold prediction
+  try {
+    const meta = await fetch('https://alphafold.ebi.ac.uk/api/prediction/' + p.uniprot).then(r => r.json());
+    const text = await fetch(meta[0].pdbUrl).then(r => { if (!r.ok) throw new Error(r.status); return r.text(); });
+    if (sel.value !== p.id) return;
+    afV.addModel(text, 'pdb');
+    afV.setStyle({}, { cartoon: { colorfunc: a => plddtColor(a.b) } });
+    afV.zoomTo(); afV.render();
+    setLoading('afLoading', '');
+    const cas = caAtoms(text, null);
+    const mean = cas.reduce((s, a) => s + a.b, 0) / cas.length;
+    const low = cas.filter(a => a.b < 50).length / cas.length * 100;
+    document.getElementById('mean').textContent = mean.toFixed(1);
+    document.getElementById('low').textContent = low.toFixed(0) + '%';
+    document.getElementById('afLen').textContent = cas.length;
+    document.getElementById('afViewer').setAttribute('aria-label', 'AlphaFold prediction for ' + p.name + ': ' + cas.length + ' residues, mean confidence ' + mean.toFixed(1) + ', ' + low.toFixed(0) + ' percent of residues very low confidence.');
+  } catch (e) {
+    setLoading('afLoading', 'Couldn\'t load the AlphaFold prediction. Check your connection and try again.');
+  }
+}
+
+sel.addEventListener('change', () => load(PROTEINS.find(p => p.id === sel.value)));
+window.addEventListener('load', () => load(PROTEINS[0]));
+</script>
+</body>
+</html>
